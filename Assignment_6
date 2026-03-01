@@ -1,0 +1,166 @@
+# server_management_console.py
+# A menu-driven server management console using an event-driven approach.
+
+# Module variables
+AGENCY_NAME     = "SYSADMIN"
+server_names    = ["Web_Alpha", "DB_Storage", "Mail_Relay"]
+server_statuses = ["Online",    "Offline",    "Online"]
+
+
+def display_menu():
+    print("\n" + "=" * 26)
+    print(">>> " + AGENCY_NAME + " MENU <<<")
+    print("1. View All Servers")
+    print("2. Change Server Status")
+    print("3. Add New Server")
+    print("4. Exit")
+    print("=" * 26)
+
+
+def view_all_servers():
+    print("\n---- CURRENT SERVER STATUS ----")
+    for i in range(len(server_names)):
+        print("[" + server_names[i] + "]: " + server_statuses[i])
+
+
+def change_server_status():
+    server_name = input("Which server name?: ")
+    new_status  = input("Enter new status: ")
+
+    for i in range(len(server_names)):
+        if server_names[i] == server_name:
+            print("Task: Setting " + server_name + " to " + new_status + "..")
+            server_statuses[i] = new_status
+            return
+
+    print("Server not found.")
+
+
+def add_new_server():
+    server_name   = input("Enter new server name: ")
+    initial_state = input("Enter initial state: ")
+
+    server_names.append(server_name)
+    server_statuses.append(initial_state)
+
+
+def main():
+    while True:
+        display_menu()
+        choice = input("Select an option (1-4): ")
+
+        if choice == "1":
+            view_all_servers()
+        elif choice == "2":
+            change_server_status()
+        elif choice == "3":
+            add_new_server()
+        elif choice == "4":
+            print("Exiting System. Goodbye!")
+            break
+        else:
+            print("Invalid option. Please select 1-4.")
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+# text_analysis.py
+# Computes the Flesch Index and grade level of a text file.
+
+def load_file(filename):
+    """Opens and returns the text content of a file as a single string."""
+    with open(filename, 'r') as f:
+        return f.read()
+
+
+def count_sentences(text):
+    """Returns the number of sentences in the text.
+    Sentences end with '.', '!', or '?'."""
+    count = 0
+    for char in text:
+        if char in '.!?':
+            count += 1
+    return count
+
+
+def count_words(text):
+    """Returns the number of words in the text."""
+    return len(text.split())
+
+
+def syllables_in(word):
+    """Returns the number of syllables in a single word."""
+    word = word.lower().strip(".:;?!")
+    count = 0
+    vowels = "aeiouy"
+    if len(word) == 0:
+        return 0
+    if word[0] in vowels:
+        count += 1
+    for index in range(1, len(word)):
+        if word[index] in vowels and word[index - 1] not in vowels:
+            count += 1
+    if word.endswith('e'):
+        count -= 1
+    if count == 0:
+        count = 1
+    return count
+
+
+def count_syllables(text):
+    """Returns the total number of syllables in the text."""
+    words = text.split()
+    count = 0
+    for word in words:
+        count += syllables_in(word)
+    return count
+
+
+def flesch_index(num_sentences, num_words, num_syllables):
+    """Computes and returns the Flesch Readability Index (float)."""
+    if num_sentences == 0 or num_words == 0:
+        return 0.0
+    return 206.835 - 1.015 * (num_words / num_sentences) \
+                   - 84.6  * (num_syllables / num_words)
+
+
+def grade_level(num_sentences, num_words, num_syllables):
+    """Computes and returns the Flesch-Kincaid Grade Level (float)."""
+    if num_sentences == 0 or num_words == 0:
+        return 0.0
+    return  0.39  * (num_words / num_sentences) \
+          + 11.8  * (num_syllables / num_words) \
+          - 15.59
+
+
+def print_report(filename, num_sentences, num_words, num_syllables, index, level):
+    """Prints a formatted analysis report."""
+    print(f"\nFile: {filename}")
+    print(f"Sentences : {num_sentences:>6}")
+    print(f"Words     : {num_words:>6}")
+    print(f"Syllables : {num_syllables:>6}")
+    print(f"Flesch Index    : {index:>8.2f}")
+    print(f"Grade Level     : {level:>8.2f}")
+
+
+def main():
+    filename = input("Enter the file name: ")
+    text = load_file(filename)
+
+    num_sentences = count_sentences(text)
+    num_words     = count_words(text)
+    num_syllables = count_syllables(text)
+
+    index = flesch_index(num_sentences, num_words, num_syllables)
+    level = grade_level(num_sentences, num_words, num_syllables)
+
+    print_report(filename, num_sentences, num_words, num_syllables, index, level)
+
+
+if __name__ == "__main__":
+    main()
